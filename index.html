@@ -49,6 +49,7 @@
             flex-direction: column;
             padding-top: var(--safe-top);
             animation: slideIn 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow-y: auto;
         }
 
         @keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
@@ -84,10 +85,10 @@
 
         @keyframes pulse { 0% { transform: scale(0.8); opacity: 1; } 100% { transform: scale(2); opacity: 0; } }
 
-        /* --- ONBOARDING & KYC STYLING --- */
-        .container { padding: 40px 25px; overflow-y: auto; flex: 1; }
+        /* --- ONBOARDING & AUTH STYLING --- */
+        .container { padding: 40px 25px; flex: 1; }
         .h-large { font-size: 2rem; font-weight: 800; line-height: 1.1; margin-bottom: 10px; color: var(--slate-900); }
-        .p-small { font-size: 0.85rem; color: #64748b; margin-bottom: 35px; }
+        .p-small { font-size: 0.85rem; color: #64748b; margin-bottom: 30px; }
 
         .form-control { margin-bottom: 24px; }
         .form-control label { 
@@ -131,21 +132,23 @@
             border: 2px solid var(--slate-100);
         }
 
-        /* --- VERIFICATION UI --- */
-        .id-card-resolved {
-            background: #f0fdf4;
-            border: 1px solid #bbf7d0;
-            padding: 20px;
-            border-radius: 20px;
-            margin-top: 10px;
-            display: none;
+        /* SELFIE UPLOAD STYLES */
+        .selfie-container {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 30px;
+            position: relative;
+            border-radius: 40px;
+            border: 3px dashed var(--slate-100);
+            display: flex;
             align-items: center;
-            gap: 15px;
+            justify-content: center;
+            overflow: hidden;
+            background: var(--slate-50);
+            cursor: pointer;
         }
-
-        .id-card-resolved i { font-size: 1.5rem; color: var(--emerald); }
-        .id-details p { margin: 0; font-size: 0.7rem; color: #166534; font-weight: 600; }
-        .id-details h4 { margin: 0; font-size: 1rem; color: #064e3b; font-weight: 800; }
+        #preview-img { width: 100%; height: 100%; object-fit: cover; display: none; }
+        .selfie-container i { font-size: 2rem; color: var(--slate-100); }
 
         .btn-action {
             width: 100%;
@@ -164,7 +167,13 @@
             box-shadow: var(--shadow-lg);
         }
 
-        .btn-action:disabled { opacity: 0.4; cursor: not-allowed; }
+        .btn-secondary {
+            background: none;
+            color: var(--electric);
+            box-shadow: none;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
 
         /* --- MAIN DASHBOARD UI --- */
         .top-nav {
@@ -175,7 +184,8 @@
         }
 
         .user-row { display: flex; justify-content: space-between; align-items: center; }
-        .avatar { width: 48px; height: 48px; border-radius: 15px; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+        .avatar { width: 48px; height: 48px; border-radius: 15px; overflow: hidden; background: rgba(255,255,255,0.1); }
+        .avatar img { width: 100%; height: 100%; object-fit: cover; }
 
         .stat-card {
             background: white;
@@ -194,8 +204,6 @@
         .bal-title { font-size: 0.7rem; color: #94a3b8; font-weight: 800; letter-spacing: 2px; }
         .bal-val { font-size: 2.5rem; font-weight: 900; color: var(--slate-900); margin: 5px 0; }
 
-        /* --- VIRTUAL CARD --- */
-        .card-wrapper { padding: 0 25px; margin-bottom: 30px; }
         .v-card {
             background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
             height: 210px;
@@ -208,36 +216,25 @@
             box-shadow: 0 20px 35px rgba(30,58,138,0.3);
             position: relative;
             overflow: hidden;
+            margin: 0 25px 30px;
         }
 
         .v-card-bg { position: absolute; bottom: -20px; right: -20px; font-size: 8rem; opacity: 0.05; transform: rotate(-15deg); }
         .card-num { font-family: 'JetBrains Mono', monospace; font-size: 1.3rem; letter-spacing: 4px; }
 
-        /* --- SETTLEMENT LIST --- */
         .history-section { padding: 0 25px; }
         .history-item {
-            background: white;
-            padding: 18px;
-            border-radius: 20px;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            border: 1px solid var(--slate-100);
+            background: white; padding: 18px; border-radius: 20px; margin-bottom: 12px;
+            display: flex; align-items: center; gap: 15px; border: 1px solid var(--slate-100);
         }
 
-        .icon-box { width: 50px; height: 50px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+        .icon-box { width: 50px; height: 50px; border-radius: 16px; display: flex; align-items: center; justify-content: center; }
         .icon-in { background: #ecfdf5; color: var(--emerald); }
 
-        /* --- BOTTOM TABS --- */
         .tab-bar {
-            position: fixed;
-            bottom: 0; width: 100%; height: 95px;
-            background: var(--glass);
-            backdrop-filter: blur(10px);
-            display: flex;
-            justify-content: space-around;
-            padding-bottom: 25px;
+            position: fixed; bottom: 0; width: 100%; height: 95px;
+            background: var(--glass); backdrop-filter: blur(10px);
+            display: flex; justify-content: space-around; padding-bottom: 25px;
             border-top: 1px solid var(--slate-100);
         }
 
@@ -249,14 +246,9 @@
         .tab-link.active { color: var(--electric); }
         .tab-link i { font-size: 1.4rem; margin-bottom: 4px; }
 
-        /* --- MODAL SYSTEM --- */
         .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(15, 23, 42, 0.9);
-            z-index: 5000;
-            display: none;
-            align-items: flex-end;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.9); z-index: 5000; display: none; align-items: flex-end;
         }
 
         .modal-body {
@@ -265,7 +257,6 @@
         }
 
         @keyframes modalUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-
     </style>
 </head>
 <body>
@@ -275,49 +266,77 @@
             <i class="fa-solid fa-building-columns splash-logo"></i>
             <h1 style="letter-spacing: -2px; font-size: 2.5rem;">BRIDGEPAY</h1>
             <div class="pulse-loader"></div>
-            <p class="network-status" id="net-status">Establishing Secure Tunnel...</p>
+            <p class="network-status">Establishing Secure Tunnel...</p>
         </div>
     </div>
 
-    <div id="view-kyc" class="app-view">
+    <div id="view-auth" class="app-view">
         <div class="container">
-            <h1 class="h-large">Identity<br>Vault</h1>
-            <p class="p-small">Your national identity details are required to initialize the global financial bridge.</p>
+            
+            <div id="section-register">
+                <h1 class="h-large">Initialize<br>Vault</h1>
+                <p class="p-small">Create your global institutional profile.</p>
 
-            <div class="form-control">
-                <label>Issuing Region</label>
-                <select id="kyc-country" class="input-box" onchange="updateTelephonyRules()">
-                    <option value="Cameroon" data-prefix="+237" data-len="9">Cameroon (+237)</option>
-                    <option value="Nigeria" data-prefix="+234" data-len="11">Nigeria (+234)</option>
-                    <option value="Ghana" data-prefix="+233" data-len="10">Ghana (+233)</option>
-                    <option value="Kenya" data-prefix="+254" data-len="9">Kenya (+254)</option>
-                </select>
-            </div>
+                <div class="selfie-container" onclick="document.getElementById('input-selfie').click()">
+                    <i class="fa-solid fa-camera" id="icon-camera"></i>
+                    <img id="preview-img">
+                </div>
+                <input type="file" id="input-selfie" hidden accept="image/*" onchange="handlePreview(this)">
 
-            <div class="form-control">
-                <label>National ID Number (NID)</label>
-                <input type="text" id="kyc-id-val" class="input-box" placeholder="Scanning identity..." oninput="resolveIdentityOnline()">
-                <div id="id-resolver-ui" class="id-card-resolved">
-                    <i class="fa-solid fa-circle-check"></i>
-                    <div class="id-details">
-                        <p>VERIFIED LEGAL IDENTITY</p>
-                        <h4 id="resolved-legal-name">...</h4>
+                <div class="form-control">
+                    <label>Full Legal Name</label>
+                    <input type="text" id="reg-name" class="input-box" placeholder="Institutional Name">
+                </div>
+
+                <div class="form-control">
+                    <label>Issuing Region</label>
+                    <select id="reg-country" class="input-box" onchange="updateUI()">
+                        <option value="Cameroon">Cameroon (+237)</option>
+                        <option value="Nigeria">Nigeria (+234)</option>
+                        <option value="Ghana">Ghana (+233)</option>
+                        <option value="Kenya">Kenya (+254)</option>
+                    </select>
+                </div>
+
+                <div class="form-control">
+                    <label>Mobile Number</label>
+                    <div class="phone-row">
+                        <div class="prefix-tag" id="label-prefix">+237</div>
+                        <input type="tel" id="reg-phone" class="input-box" placeholder="6xx xxx xxx">
                     </div>
                 </div>
-            </div>
 
-            <div class="form-control">
-                <label>Registered Mobile Wallet</label>
-                <div class="phone-row">
-                    <div class="prefix-tag" id="prefix-display">+237</div>
-                    <input type="tel" id="kyc-phone-val" class="input-box" placeholder="6xx xxx xxx" oninput="validatePhoneEntry()">
+                <div class="form-control">
+                    <label>Vault Password (8 Alphanumeric)</label>
+                    <input type="password" id="reg-pass" class="input-box" maxlength="8" placeholder="e.g. JTech123">
                 </div>
-                <p style="font-size: 0.6rem; color: #94a3b8; margin-top: 8px;" id="phone-rule-text">Requirement: 9 digits</p>
+
+                <button class="btn-action" onclick="handleRegistration()">
+                    <i class="fa-solid fa-shield-halved"></i> ACTIVATE VAULT
+                </button>
+                <button class="btn-action btn-secondary" onclick="toggleAuth(false)">Already a member? Login</button>
             </div>
 
-            <button id="btn-onboard" class="btn-action" disabled onclick="completeOnlineOnboarding()">
-                <i class="fa-solid fa-shield-halved"></i> ACTIVATE PORTAL
-            </button>
+            <div id="section-login" style="display: none;">
+                <h1 class="h-large">Secure<br>Access</h1>
+                <p class="p-small">Enter your credentials to unlock the bridge.</p>
+
+                <div class="form-control">
+                    <label>Phone Number</label>
+                    <input type="tel" id="login-phone" class="input-box" placeholder="6xx xxx xxx">
+                </div>
+
+                <div class="form-control">
+                    <label>Vault Password</label>
+                    <input type="password" id="login-pass" class="input-box" maxlength="8">
+                </div>
+
+                <button class="btn-action" onclick="handleLogin()">
+                    <i class="fa-solid fa-key"></i> UNLOCK DASHBOARD
+                </button>
+                <button class="btn-action btn-secondary" onclick="toggleAuth(true)">New client? Register</button>
+            </div>
+
         </div>
     </div>
 
@@ -328,7 +347,9 @@
                     <p style="font-size: 0.65rem; font-weight: 700; opacity: 0.6; letter-spacing: 1px;">INSTITUTIONAL CLIENT</p>
                     <h3 id="dash-user-name" style="font-weight: 800;">...</h3>
                 </div>
-                <div class="avatar"><i class="fa-solid fa-user-shield" style="color: var(--electric);"></i></div>
+                <div class="avatar" id="dash-avatar">
+                    <i class="fa-solid fa-user" style="color: white; padding: 15px;"></i>
+                </div>
             </div>
         </header>
 
@@ -346,37 +367,29 @@
                 </div>
             </section>
 
-            <div class="card-wrapper">
-                <p style="font-size: 0.75rem; font-weight: 800; color: var(--slate-900); margin-bottom: 15px;">VIRTUAL DEBIT TERMINAL</p>
-                <div class="v-card">
-                    <i class="fa-solid fa-building-columns v-card-bg"></i>
-                    <div style="display: flex; justify-content: space-between;">
-                        <span style="font-size: 0.7rem; font-weight: 800; letter-spacing: 2px;">BRIDGEPAY ELITE</span>
-                        <i class="fa-brands fa-cc-visa" style="font-size: 2.2rem;"></i>
+            <div class="v-card">
+                <i class="fa-solid fa-building-columns v-card-bg"></i>
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="font-size: 0.7rem; font-weight: 800; letter-spacing: 2px;">BRIDGEPAY ELITE</span>
+                    <i class="fa-brands fa-cc-visa" style="font-size: 2.2rem;"></i>
+                </div>
+                <div style="width: 50px; height: 35px; background: #fbbf24; border-radius: 6px;"></div>
+                <div class="card-num" id="dash-card-num">•••• •••• •••• ••••</div>
+                <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+                    <div>
+                        <p style="font-size: 0.5rem; opacity: 0.6; font-weight: 700;">HOLDER</p>
+                        <p style="font-size: 0.85rem; font-weight: 800;" id="dash-card-name">...</p>
                     </div>
-                    <div style="width: 50px; height: 35px; background: #fbbf24; border-radius: 6px;"></div>
-                    <div class="card-num" id="dash-card-num">•••• •••• •••• ••••</div>
-                    <div style="display: flex; justify-content: space-between; align-items: flex-end;">
-                        <div>
-                            <p style="font-size: 0.5rem; opacity: 0.6; font-weight: 700;">HOLDER</p>
-                            <p style="font-size: 0.85rem; font-weight: 800;" id="dash-card-name">...</p>
-                        </div>
-                        <div style="text-align: right;">
-                            <p style="font-size: 0.5rem; opacity: 0.6; font-weight: 700;">EXPIRES</p>
-                            <p style="font-size: 0.85rem; font-weight: 800;">12/29</p>
-                        </div>
+                    <div style="text-align: right;">
+                        <p style="font-size: 0.5rem; opacity: 0.6; font-weight: 700;">EXPIRES</p>
+                        <p style="font-size: 0.85rem; font-weight: 800;">12/29</p>
                     </div>
                 </div>
             </div>
 
             <div class="history-section">
                 <p style="font-size: 0.75rem; font-weight: 800; color: var(--slate-900); margin-bottom: 15px;">SETTLEMENT HISTORY</p>
-                <div id="txn-ledger-list">
-                    <div style="text-align: center; padding: 40px; color: #cbd5e1;">
-                        <i class="fa-solid fa-database" style="font-size: 2rem; margin-bottom: 10px;"></i>
-                        <p style="font-size: 0.7rem; font-weight: 600;">No online settlements found.</p>
-                    </div>
-                </div>
+                <div id="txn-ledger-list"></div>
             </div>
         </div>
 
@@ -390,260 +403,155 @@
 
     <div id="modal-load" class="modal-overlay">
         <div class="modal-body">
-            <h2 style="font-weight: 800; margin-bottom: 10px;">Load Account</h2>
-            <p class="p-small" style="margin-bottom: 25px;">Institutional funds are bridged instantly via Flutterwave Secure Gateway.</p>
-            
-            <div class="form-control">
-                <label>Deposit Amount (<span id="modal-cur">XAF</span>)</label>
-                <input type="number" id="load-amt-val" class="input-box" placeholder="Minimum 1,000">
+            <h2 style="font-weight: 800;">Load Account</h2>
+            <div class="form-control" style="margin-top: 20px;">
+                <label>Amount (<span id="modal-cur">XAF</span>)</label>
+                <input type="number" id="load-amt-val" class="input-box" placeholder="Min 1,000">
             </div>
-
-            <button class="btn-action" style="background: var(--emerald);" onclick="executeFlutterwavePayment()">
-                <i class="fa-solid fa-lock"></i> AUTHORIZE DEPOSIT
-            </button>
-            <button class="btn-action" style="background: none; color: #94a3b8; box-shadow: none; margin-top: 10px;" onclick="toggleModal('modal-load', false)">CANCEL</button>
+            <button class="btn-action" style="background: var(--emerald);" onclick="executePayment()">AUTHORIZE</button>
+            <button class="btn-action btn-secondary" onclick="toggleModal('modal-load', false)">CANCEL</button>
         </div>
     </div>
 
     <script>
-        /**
-         * BRIDGEPAY ONLINE CORE v4.0.0 - SUPABASE INTEGRATED
-         * This engine connects UI elements to your SQL Backend.
-         */
-
-        // 1. INITIALIZE SUPABASE (REPLACE THESE WITH YOUR KEYS)
+        // --- CORE ENGINE ---
         const _supabaseUrl = 'https://sumvttosrnawsyiiyvlh.supabase.co';
         const _supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN1bXZ0dG9zcm5hd3N5aWl5dmxoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwOTQ5NjYsImV4cCI6MjA5MTY3MDk2Nn0.xAQnDk9JTWrhU4NPtALtJ6J0fMz7ItAJexwPF1xjgOk';
         const supabaseClient = supabase.createClient(_supabaseUrl, _supabaseKey);
 
-        const GLOBAL_TELEPHONY = {
-            "Cameroon": { prefix: "+237", length: 9, cur: "XAF", card: "4020" },
-            "Nigeria": { prefix: "+234", length: 11, cur: "NGN", card: "5399" },
-            "Ghana": { prefix: "+233", length: 10, cur: "GHS", card: "4111" },
-            "Kenya": { prefix: "+254", length: 9, cur: "KES", card: "4000" }
+        const TELEPHONY = {
+            "Cameroon": { prefix: "+237", cur: "XAF", card: "4020" },
+            "Nigeria": { prefix: "+234", cur: "NGN", card: "5399" },
+            "Ghana": { prefix: "+233", cur: "GHS", card: "4111" },
+            "Kenya": { prefix: "+254", cur: "KES", card: "4000" }
         };
 
-        let sessionState = {
-            activeUser: null, // Will be fetched from Supabase
-            totalBal: 0,
-            settlements: [],
-            isIDVerified: false
-        };
+        let sessionUser = null;
 
-        // --- APP LIFECYCLE ---
-        window.addEventListener('DOMContentLoaded', async () => {
-            updateTelephonyRules();
-            
-            // Check if there is a saved National ID in local storage to auto-login
-            const savedNID = localStorage.getItem('bp_active_nid');
-            
-            if(savedNID) {
-                const { data, error } = await supabaseClient
-                    .from('profiles')
-                    .select('*')
-                    .eq('national_id', savedNID)
-                    .single();
-
-                if (data) {
-                    sessionState.activeUser = data;
-                    sessionState.totalBal = data.balance;
-                    await fetchTransactions(data.id);
-                    
-                    document.getElementById('view-splash').style.display = 'none';
-                    launchDashboardView();
-                    return;
-                }
-            }
-
-            // If no user, show KYC screen after splash
+        window.onload = () => {
             setTimeout(() => {
                 document.getElementById('view-splash').style.display = 'none';
-                document.getElementById('view-kyc').style.display = 'flex';
+                document.getElementById('view-auth').style.display = 'flex';
             }, 2500);
-        });
+        };
 
-        // --- FETCH TRANSACTIONS FROM SUPABASE ---
-        async function fetchTransactions(userId) {
-            const { data, error } = await supabaseClient
-                .from('transactions')
-                .select('*')
-                .eq('user_id', userId)
-                .order('created_at', { ascending: false });
-            
-            if (data) sessionState.settlements = data;
+        function toggleAuth(showReg) {
+            document.getElementById('section-register').style.display = showReg ? 'block' : 'none';
+            document.getElementById('section-login').style.display = showReg ? 'none' : 'block';
         }
 
-        // --- IDENTITY RESOLUTION (DATABASE LOOKUP) ---
-        function resolveIdentityOnline() {
-            const idVal = document.getElementById('kyc-id-val').value.trim();
-            const uiBox = document.getElementById('id-resolver-ui');
-            const nameEl = document.getElementById('resolved-legal-name');
-            
-            sessionState.isIDVerified = false;
-            uiBox.style.display = 'none';
-            validateOnboardingForm();
+        function updateUI() {
+            const country = document.getElementById('reg-country').value;
+            document.getElementById('label-prefix').innerText = TELEPHONY[country].prefix;
+        }
 
-            if(idVal.length >= 8) {
-                clearTimeout(window.idLookupTimer);
-                window.idLookupTimer = setTimeout(() => {
-                    // In a production app, this would verify against a government API.
-                    // For now, it generates a professional name based on the ID.
-                    nameEl.innerText = "HOLDER REF: " + idVal;
-                    uiBox.style.display = 'flex';
-                    sessionState.isIDVerified = true;
-                    validateOnboardingForm();
-                }, 500);
+        function handlePreview(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    document.getElementById('preview-img').src = e.target.result;
+                    document.getElementById('preview-img').style.display = 'block';
+                    document.getElementById('icon-camera').style.display = 'none';
+                };
+                reader.readAsDataURL(input.files[0]);
             }
         }
 
-        // --- SAVE NEW USER TO SUPABASE ---
-        async function completeOnlineOnboarding() {
-            const country = document.getElementById('kyc-country').value;
-            const meta = GLOBAL_TELEPHONY[country];
-            const name = document.getElementById('resolved-legal-name').innerText;
-            const idNum = document.getElementById('kyc-id-val').value;
-            const phone = meta.prefix + document.getElementById('kyc-phone-val').value;
+        async function handleRegistration() {
+            const name = document.getElementById('reg-name').value;
+            const country = document.getElementById('reg-country').value;
+            const phone = document.getElementById('reg-phone').value;
+            const pass = document.getElementById('reg-pass').value;
+            const file = document.getElementById('input-selfie').files[0];
 
-            const cardNum = meta.card + " " + Math.floor(1000 + Math.random()*9000) + " " + Math.floor(1000 + Math.random()*9000) + " " + idNum.slice(-4);
-
-            const { data, error } = await supabaseClient
-                .from('profiles')
-                .upsert({ 
-                    national_id: idNum,
-                    legal_name: name,
-                    phone_number: phone,
-                    country: country,
-                    card_number: cardNum,
-                    balance: 0
-                }, { onConflict: 'national_id' })
-                .select()
-                .single();
-
-            if (error) {
-                alert("Vault Connection Error: " + error.message);
-            } else {
-                sessionState.activeUser = data;
-                sessionState.totalBal = data.balance;
-                localStorage.setItem('bp_active_nid', idNum);
-                launchDashboardView();
+            // STRICT: 8 Alphanumeric validation
+            const isAlphaNumeric = /^(?=.*[0-9])(?=.*[a-zA-Z])([a-zA-Z0-9]+)$/.test(pass);
+            if(pass.length !== 8 || !isAlphaNumeric) {
+                return alert("Password must be exactly 8 characters (letters + numbers).");
             }
+
+            if(!name || !phone || !file) return alert("All fields including selfie are mandatory.");
+
+            // 1. Storage
+            const path = `selfie_${Date.now()}.png`;
+            const { data: uploadData, error: upErr } = await supabaseClient.storage.from('selfies').upload(path, file);
+            if(upErr) return alert("Storage Error: " + upErr.message);
+
+            const { data: urlData } = supabaseClient.storage.from('selfies').getPublicUrl(path);
+
+            // 2. Profile
+            const cardNum = TELEPHONY[country].card + " " + Math.floor(1000 + Math.random()*9000) + " " + Math.floor(1000 + Math.random()*9000) + " " + phone.slice(-4);
+
+            const { data, error } = await supabaseClient.from('profiles').insert({
+                legal_name: name, country, phone_number: phone, password: pass, profile_pic: urlData.publicUrl, card_number: cardNum, balance: 0
+            }).select().single();
+
+            if(error) alert("Database Error: " + error.message);
+            else { alert("Vault Activated!"); location.reload(); }
         }
 
-        // --- DASHBOARD RENDERING ---
-        function launchDashboardView() {
-            document.getElementById('view-kyc').style.display = 'none';
+        async function handleLogin() {
+            const phone = document.getElementById('login-phone').value;
+            const pass = document.getElementById('login-pass').value;
+
+            const { data, error } = await supabaseClient.from('profiles').select('*').eq('phone_number', phone).eq('password', pass).single();
+
+            if(data) {
+                sessionUser = data;
+                renderDashboard();
+            } else { alert("Invalid Phone or Password"); }
+        }
+
+        function renderDashboard() {
+            document.getElementById('view-auth').style.display = 'none';
             document.getElementById('view-main').style.display = 'flex';
-
-            document.getElementById('dash-user-name').innerText = sessionState.activeUser.legal_name;
-            document.getElementById('dash-card-name').innerText = sessionState.activeUser.legal_name.toUpperCase();
-            document.getElementById('dash-card-num').innerText = sessionState.activeUser.card_number;
-            document.getElementById('main-bal-amount').innerText = sessionState.totalBal.toLocaleString();
-            
-            // Map country to currency
-            const cur = GLOBAL_TELEPHONY[sessionState.activeUser.country].cur;
-            document.getElementById('main-cur-code').innerText = cur;
-            document.getElementById('modal-cur').innerText = cur;
-
-            renderSettlementHistory();
+            document.getElementById('dash-user-name').innerText = sessionUser.legal_name;
+            document.getElementById('dash-card-name').innerText = sessionUser.legal_name.toUpperCase();
+            document.getElementById('dash-card-num').innerText = sessionUser.card_number;
+            document.getElementById('main-bal-amount').innerText = sessionUser.balance.toLocaleString();
+            document.getElementById('main-cur-code').innerText = TELEPHONY[sessionUser.country].cur;
+            document.getElementById('dash-avatar').innerHTML = `<img src="${sessionUser.profile_pic}">`;
+            fetchTxns();
         }
 
-        // --- FLUTTERWAVE -> SUPABASE PAYMENT ---
-        function executeFlutterwavePayment() {
-            const amount = document.getElementById('load-amt-val').value;
-            if(!amount || amount < 1000) return alert("Minimum settlement is 1,000");
-
-            FlutterwaveCheckout({
-                public_key: "FLWPUBK_TEST-5f661c9e83109a908064d47158300223-X",
-                tx_ref: "BP-REF-" + Date.now(),
-                amount: amount,
-                currency: GLOBAL_TELEPHONY[sessionState.activeUser.country].cur,
-                customer: {
-                    email: "vault@jtech.com",
-                    phone_number: sessionState.activeUser.phone_number,
-                    name: sessionState.activeUser.legal_name,
-                },
-                callback: async (response) => {
-                    if(response.status === "successful") {
-                        // 1. Record Transaction in Supabase
-                        await supabaseClient.from('transactions').insert({
-                            user_id: sessionState.activeUser.id,
-                            amount: amount,
-                            status: 'success',
-                            reference: response.tx_ref
-                        });
-
-                        // 2. Increment Balance via RPC Function
-                        await supabaseClient.rpc('increment_balance', { 
-                            row_id: sessionState.activeUser.id, 
-                            amt: parseFloat(amount) 
-                        });
-
-                        alert("Settlement Successful!");
-                        location.reload(); 
-                    }
-                },
-                customizations: {
-                    title: "BridgePay Master Admin",
-                    description: "Terminal Funding",
-                    logo: "https://cdn-icons-png.flaticon.com/512/10245/10245450.png",
-                },
-            });
-        }
-
-        function renderSettlementHistory() {
+        async function fetchTxns() {
+            const { data } = await supabaseClient.from('transactions').select('*').eq('user_id', sessionUser.id).order('created_at', {ascending: false});
             const list = document.getElementById('txn-ledger-list');
-            if(sessionState.settlements.length === 0) return;
-
-            list.innerHTML = sessionState.settlements.map(s => `
+            if(!data || data.length === 0) {
+                list.innerHTML = `<p style="text-align:center; color:#94a3b8; font-size:0.7rem; padding:20px;">No History</p>`;
+                return;
+            }
+            list.innerHTML = data.map(s => `
                 <div class="history-item">
                     <div class="icon-box icon-in"><i class="fa-solid fa-arrow-down-long"></i></div>
-                    <div style="flex: 1;">
-                        <p style="margin:0; font-weight: 800; font-size: 0.85rem;">Cloud Settlement</p>
-                        <p style="margin:0; font-size: 0.6rem; color: #94a3b8;">Ref: ${s.reference.slice(-8)}</p>
-                    </div>
-                    <div style="text-align: right;">
-                        <p style="margin:0; font-weight: 800; color: var(--emerald);">+${parseFloat(s.amount).toLocaleString()}</p>
-                        <span style="font-size: 0.5rem; font-weight: 900; background: #dcfce7; color: #166534; padding: 2px 6px; border-radius: 4px;">VERIFIED</span>
-                    </div>
+                    <div style="flex:1;"><p style="font-weight:800; font-size:0.8rem;">Settlement</p></div>
+                    <div style="text-align:right;"><p style="font-weight:800; color:var(--emerald);">+${s.amount.toLocaleString()}</p></div>
                 </div>
             `).join('');
         }
 
-        // --- UTILITY FUNCTIONS ---
-        function updateTelephonyRules() {
-            const country = document.getElementById('kyc-country').value;
-            const meta = GLOBAL_TELEPHONY[country];
-            document.getElementById('prefix-display').innerText = meta.prefix;
-            document.getElementById('phone-rule-text').innerText = `Requirement: ${meta.length} digits`;
-            validateOnboardingForm();
+        function executePayment() {
+            const amt = document.getElementById('load-amt-val').value;
+            if(amt < 1000) return alert("Min 1,000");
+
+            FlutterwaveCheckout({
+                public_key: "FLWPUBK_TEST-5f661c9e83109a908064d47158300223-X",
+                tx_ref: "BP-" + Date.now(),
+                amount: amt,
+                currency: TELEPHONY[sessionUser.country].cur,
+                customer: { email: "vault@jtech.com", name: sessionUser.legal_name },
+                callback: async (res) => {
+                    if(res.status === "successful") {
+                        await supabaseClient.from('transactions').insert({ user_id: sessionUser.id, amount: amt, status: 'success', reference: res.tx_ref });
+                        await supabaseClient.rpc('increment_balance', { row_id: sessionUser.id, amt: parseFloat(amt) });
+                        location.reload();
+                    }
+                }
+            });
         }
 
-        function validatePhoneEntry() {
-            const country = document.getElementById('kyc-country').value;
-            const phoneField = document.getElementById('kyc-phone-val');
-            const required = GLOBAL_TELEPHONY[country].length;
-            if(phoneField.value.length > required) phoneField.value = phoneField.value.slice(0, required);
-            validateOnboardingForm();
-        }
-
-        function validateOnboardingForm() {
-            const country = document.getElementById('kyc-country').value;
-            const phoneVal = document.getElementById('kyc-phone-val').value;
-            const required = GLOBAL_TELEPHONY[country].length;
-            const btn = document.getElementById('btn-onboard');
-            btn.disabled = !(sessionState.isIDVerified && phoneVal.length === required);
-        }
-
-        function toggleModal(id, show) {
-            document.getElementById(id).style.display = show ? 'flex' : 'none';
-        }
-
-        function handleLogout() {
-            if(confirm("Terminate Vault Session?")) {
-                localStorage.clear();
-                location.reload();
-            }
-        }
+        function toggleModal(id, show) { document.getElementById(id).style.display = show ? 'flex' : 'none'; }
+        function handleLogout() { if(confirm("Logout?")) location.reload(); }
     </script>
 </body>
 </html>
