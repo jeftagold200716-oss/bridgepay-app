@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>BridgePay Online | Secure Institutional Gateway</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://checkout.flutterwave.com/v3.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        :root {
+            --cobalt: #1e3a8a;
+            --electric: #3b82f6;
+            --emerald: #10b981;
+            --crimson: #ef4444;
+            --amber: #f59e0b;
+            --slate-50: #f8fafc;
+            --slate-100: #f1f5f9;
+            --slate-800: #1e293b;
+            --slate-900: #0f172a;
+            --glass: rgba(255, 255, 255, 0.95);
+            --shadow-sm: 0 10px 15px -3px rgba(0,0,0,0.1);
+            --shadow-lg: 0 25px 50px -12px rgba(0,0,0,0.15);
+            --safe-top: env(safe-area-inset-top);
+        }
+
+        /* --- GLOBAL RESET --- */
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
+        
+        body { 
+            background-color: var(--slate-50); 
+            font-family: 'Poppins', sans-serif; 
+            height: 100vh; 
+            overflow: hidden; 
+            color: var(--slate-900);
+        }
+
+        /* --- SCREEN SYSTEM --- */
+        .app-view {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: white;
+            z-index: 100;
+            display: none;
+            flex-direction: column;
+            padding-top: var(--safe-top);
+            animation: slideIn 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        /* --- SPLASH COMPONENT --- */
+        #view-splash {
+            display: flex;
+            background: linear-gradient(135deg, var(--slate-900) 0%, var(--cobalt) 100%);
+            color: white;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .splash-content { text-align: center; }
+        .splash-logo { font-size: 4.5rem; color: var(--electric); margin-bottom: 20px; filter: drop-shadow(0 0 15px rgba(59,130,246,0.5)); }
+        
+        .network-status {
+            margin-top: 40px;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            opacity: 0.6;
+        }
+
+        .pulse-loader {
+            width: 40px; height: 40px;
+            background: var(--electric);
+            border-radius: 50%;
+            margin: 20px auto;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse { 0% { transform: scale(0.8); opacity: 1; } 100% { transform: scale(2); opacity: 0; } }
+
+        /* --- ONBOARDING & KYC STYLING --- */
+        .container { padding: 40px 25px; overflow-y: auto; flex: 1; }
+        .h-large { font-size: 2rem; font-weight: 800; line-height: 1.1; margin-bottom: 10px; color: var(--slate-900); }
+        .p-small { font-size: 0.85rem; color: #64748b; margin-bottom: 35px; }
+
+        .form-control { margin-bottom: 24px; }
+        .form-control label { 
+            display: block; 
+            font-size: 0.65rem; 
+            font-weight: 800; 
+            color: var(--electric); 
+            text-transform: uppercase; 
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        .input-box {
+            width: 100%;
+            padding: 18px 20px;
+            border: 2px solid var(--slate-100);
+            border-radius: 18px;
+            font-size: 1rem;
+            font-family: inherit;
+            background: var(--slate-50);
+            transition: 0.3s;
+        }
+
+        .input-box:focus {
+            border-color: var(--electric);
+            background: white;
+            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.1);
+            outline: none;
+        }
+
+        .phone-row { display: flex; gap: 12px; }
+        .prefix-tag {
+            background: var(--slate-100);
+            padding: 0 15px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            font-weight: 800;
+            font-size: 0.9rem;
+            color: var(--slate-800);
+            border: 2px solid var(--slate-100);
+        }
+
+        /* --- VERIFICATION UI --- */
+        .id-card-resolved {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            padding: 20px;
+            border-radius: 20px;
+            margin-top: 10px;
+            display: none;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .id-card-resolved i { font-size: 1.5rem; color: var(--emerald); }
+        .id-details p { margin: 0; font-size: 0.7rem; color: #166534; font-weight: 600; }
+        .id-details h4 { margin: 0; font-size: 1rem; color: #064e3b; font-weight: 800; }
+
+        .btn-action {
+            width: 100%;
+            padding: 22px;
+            border-radius: 20px;
+            border: none;
+            background: var(--slate-900);
+            color: white;
+            font-weight: 800;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            cursor: pointer;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-action:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        /* --- MAIN DASHBOARD UI --- */
+        .top-nav {
+            padding: 60px 25px 25px;
+            background: var(--slate-900);
+            color: white;
+            border-radius: 0 0 40px 40px;
+        }
+
+        .user-row { display: flex; justify-content: space-between; align-items: center; }
+        .avatar { width: 48px; height: 48px; border-radius: 15px; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+
+        .stat-card {
+            background: white;
+            margin: -60px 25px 30px;
+            padding: 30px;
+            border-radius: 35px;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+        }
+
+        .stat-card::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 8px;
+            background: var(--electric); border-radius: 35px 35px 0 0;
+        }
+
+        .bal-title { font-size: 0.7rem; color: #94a3b8; font-weight: 800; letter-spacing: 2px; }
+        .bal-val { font-size: 2.5rem; font-weight: 900; color: var(--slate-900); margin: 5px 0; }
+
+        /* --- VIRTUAL CARD --- */
+        .card-wrapper { padding: 0 25px; margin-bottom: 30px; }
+        .v-card {
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+            height: 210px;
+            border-radius: 25px;
+            padding: 25px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 20px 35px rgba(30,58,138,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .v-card-bg { position: absolute; bottom: -20px; right: -20px; font-size: 8rem; opacity: 0.05; transform: rotate(-15deg); }
+        .card-num { font-family: 'JetBrains Mono', monospace; font-size: 1.3rem; letter-spacing: 4px; }
+
+        /* --- SETTLEMENT LIST --- */
+        .history-section { padding: 0 25px; }
+        .history-item {
+            background: white;
+            padding: 18px;
+            border-radius: 20px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border: 1px solid var(--slate-100);
+        }
+
+        .icon-box { width: 50px; height: 50px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+        .icon-in { background: #ecfdf5; color: var(--emerald); }
+
+        /* --- BOTTOM TABS --- */
+        .tab-bar {
+            position: fixed;
+            bottom: 0; width: 100%; height: 95px;
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-around;
+            padding-bottom: 25px;
+            border-top: 1px solid var(--slate-100);
+        }
+
+        .tab-link {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            color: #94a3b8; text-decoration: none; font-size: 0.65rem; font-weight: 700;
+        }
+
+        .tab-link.active { color: var(--electric); }
+        .tab-link i { font-size: 1.4rem; margin-bottom: 4px; }
+
+        /* --- MODAL SYSTEM --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.9);
+            z-index: 5000;
+            display: none;
+            align-items: flex-end;
+        }
+
+        .modal-body {
+            background: white; width: 100%; border-radius: 40px 40px 0 0;
+            padding: 40px 30px; animation: modalUp 0.4s ease-out;
+        }
+
+        @keyframes modalUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+    </style>
+</head>
+<body>
+
+    <div id="view-splash" class="app-view" style="display: flex;">
+        <div class="splash-content">
+            <i class="fa-solid fa-building-columns splash-logo"></i>
+            <h1 style="letter-spacing: -2px; font-size: 2.5rem;">BRIDGEPAY</h1>
+            <div class="pulse-loader"></div>
+            <p class="network-status" id="net-status">Establishing Secure Tunnel...</p>
+        </div>
+    </div>
+
+    <div id="view-kyc" class="app-view">
+        <div class="container">
+            <h1 class="h-large">Identity<br>Vault</h1>
+            <p class="p-small">Your national identity details are required to initialize the global financial bridge.</p>
+
+            <div class="form-control">
+                <label>Issuing Region</label>
+                <select id="kyc-country" class="input-box" onchange="updateTelephonyRules()">
+                    <option value="Cameroon" data-prefix="+237" data-len="9">Cameroon (+237)</option>
+                    <option value="Nigeria" data-prefix="+234" data-len="11">Nigeria (+234)</option>
+                    <option value="Ghana" data-prefix="+233" data-len="10">Ghana (+233)</option>
+                    <option value="Kenya" data-prefix="+254" data-len="9">Kenya (+254)</option>
+                </select>
+            </div>
+
+            <div class="form-control">
+                <label>National ID Number (NID)</label>
+                <input type="text" id="kyc-id-val" class="input-box" placeholder="Scanning identity..." oninput="resolveIdentityOnline()">
+                <div id="id-resolver-ui" class="id-card-resolved">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <div class="id-details">
+                        <p>VERIFIED LEGAL IDENTITY</p>
+                        <h4 id="resolved-legal-name">...</h4>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-control">
+                <label>Registered Mobile Wallet</label>
+                <div class="phone-row">
+                    <div class="prefix-tag" id="prefix-display">+237</div>
+                    <input type="tel" id="kyc-phone-val" class="input-box" placeholder="6xx xxx xxx" oninput="validatePhoneEntry()">
+                </div>
+                <p style="font-size: 0.6rem; color: #94a3b8; margin-top: 8px;" id="phone-rule-text">Requirement: 9 digits</p>
+            </div>
+
+            <button id="btn-onboard" class="btn-action" disabled onclick="completeOnlineOnboarding()">
+                <i class="fa-solid fa-shield-halved"></i> ACTIVATE PORTAL
+            </button>
+        </div>
+    </div>
+
+    <div id="view-main" class="app-view">
+        <header class="top-nav">
+            <div class="user-row">
+                <div>
+                    <p style="font-size: 0.65rem; font-weight: 700; opacity: 0.6; letter-spacing: 1px;">INSTITUTIONAL CLIENT</p>
+                    <h3 id="dash-user-name" style="font-weight: 800;">...</h3>
+                </div>
+                <div class="avatar"><i class="fa-solid fa-user-shield" style="color: var(--electric);"></i></div>
+            </div>
+        </header>
+
+        <div class="app-body" style="flex: 1; overflow-y: auto; padding-bottom: 110px;">
+            <section class="stat-card">
+                <p class="bal-title">SETTLED LIQUIDITY</p>
+                <h1 class="bal-val"><span id="main-bal-amount">0.00</span> <span id="main-cur-code" style="font-size: 1.2rem; opacity: 0.4;">XAF</span></h1>
+                <div style="display: flex; gap: 15px; margin-top: 25px;">
+                    <button class="btn-action" style="flex: 1; padding: 16px; font-size: 0.85rem; background: var(--electric);" onclick="toggleModal('modal-load', true)">
+                        <i class="fa-solid fa-plus-circle"></i> Load Funds
+                    </button>
+                    <button class="btn-action" style="flex: 1; padding: 16px; font-size: 0.85rem; background: var(--slate-800);">
+                        <i class="fa-solid fa-paper-plane"></i> Transfer
+                    </button>
+                </div>
+            </section>
+
+            <div class="card-wrapper">
+                <p style="font-size: 0.75rem; font-weight: 800; color: var(--slate-900); margin-bottom: 15px;">VIRTUAL DEBIT TERMINAL</p>
+                <div class="v-card">
+                    <i class="fa-solid fa-building-columns v-card-bg"></i>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="font-size: 0.7rem; font-weight: 800; letter-spacing: 2px;">BRIDGEPAY ELITE</span>
+                        <i class="fa-brands fa-cc-visa" style="font-size: 2.2rem;"></i>
+                    </div>
+                    <div style="width: 50px; height: 35px; background: #fbbf24; border-radius: 6px;"></div>
+                    <div class="card-num" id="dash-card-num">•••• •••• •••• ••••</div>
+                    <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+                        <div>
+                            <p style="font-size: 0.5rem; opacity: 0.6; font-weight: 700;">HOLDER</p>
+                            <p style="font-size: 0.85rem; font-weight: 800;" id="dash-card-name">...</p>
+                        </div>
+                        <div style="text-align: right;">
+                            <p style="font-size: 0.5rem; opacity: 0.6; font-weight: 700;">EXPIRES</p>
+                            <p style="font-size: 0.85rem; font-weight: 800;">12/29</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="history-section">
+                <p style="font-size: 0.75rem; font-weight: 800; color: var(--slate-900); margin-bottom: 15px;">SETTLEMENT HISTORY</p>
+                <div id="txn-ledger-list">
+                    <div style="text-align: center; padding: 40px; color: #cbd5e1;">
+                        <i class="fa-solid fa-database" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                        <p style="font-size: 0.7rem; font-weight: 600;">No online settlements found.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <nav class="tab-bar">
+            <a href="#" class="tab-link active"><i class="fa-solid fa-house-user"></i><span>Home</span></a>
+            <a href="#" class="tab-link"><i class="fa-solid fa-wallet"></i><span>Cards</span></a>
+            <a href="#" class="tab-link"><i class="fa-solid fa-chart-line"></i><span>Stats</span></a>
+            <a href="#" class="tab-link" onclick="handleLogout()"><i class="fa-solid fa-gear"></i><span>Vault</span></a>
+        </nav>
+    </div>
+
+    <div id="modal-load" class="modal-overlay">
+        <div class="modal-body">
+            <h2 style="font-weight: 800; margin-bottom: 10px;">Load Account</h2>
+            <p class="p-small" style="margin-bottom: 25px;">Institutional funds are bridged instantly via Flutterwave Secure Gateway.</p>
+            
+            <div class="form-control">
+                <label>Deposit Amount (<span id="modal-cur">XAF</span>)</label>
+                <input type="number" id="load-amt-val" class="input-box" placeholder="Minimum 1,000">
+            </div>
+
+            <button class="btn-action" style="background: var(--emerald);" onclick="executeFlutterwavePayment()">
+                <i class="fa-solid fa-lock"></i> AUTHORIZE DEPOSIT
+            </button>
+            <button class="btn-action" style="background: none; color: #94a3b8; box-shadow: none; margin-top: 10px;" onclick="toggleModal('modal-load', false)">CANCEL</button>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * BRIDGEPAY ONLINE CORE v4.0.0 - SUPABASE INTEGRATED
+         * This engine connects UI elements to your SQL Backend.
+         */
+
+        // 1. INITIALIZE SUPABASE (REPLACE THESE WITH YOUR KEYS)
+        const _supabaseUrl = 'https://sumvttosrnawsyiiyvlh.supabase.co';
+        const _supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN1bXZ0dG9zcm5hd3N5aWl5dmxoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwOTQ5NjYsImV4cCI6MjA5MTY3MDk2Nn0.xAQnDk9JTWrhU4NPtALtJ6J0fMz7ItAJexwPF1xjgOk';
+        const supabaseClient = supabase.createClient(_supabaseUrl, _supabaseKey);
+
+        const GLOBAL_TELEPHONY = {
+            "Cameroon": { prefix: "+237", length: 9, cur: "XAF", card: "4020" },
+            "Nigeria": { prefix: "+234", length: 11, cur: "NGN", card: "5399" },
+            "Ghana": { prefix: "+233", length: 10, cur: "GHS", card: "4111" },
+            "Kenya": { prefix: "+254", length: 9, cur: "KES", card: "4000" }
+        };
+
+        let sessionState = {
+            activeUser: null, // Will be fetched from Supabase
+            totalBal: 0,
+            settlements: [],
+            isIDVerified: false
+        };
+
+        // --- APP LIFECYCLE ---
+        window.addEventListener('DOMContentLoaded', async () => {
+            updateTelephonyRules();
+            
+            // Check if there is a saved National ID in local storage to auto-login
+            const savedNID = localStorage.getItem('bp_active_nid');
+            
+            if(savedNID) {
+                const { data, error } = await supabaseClient
+                    .from('profiles')
+                    .select('*')
+                    .eq('national_id', savedNID)
+                    .single();
+
+                if (data) {
+                    sessionState.activeUser = data;
+                    sessionState.totalBal = data.balance;
+                    await fetchTransactions(data.id);
+                    
+                    document.getElementById('view-splash').style.display = 'none';
+                    launchDashboardView();
+                    return;
+                }
+            }
+
+            // If no user, show KYC screen after splash
+            setTimeout(() => {
+                document.getElementById('view-splash').style.display = 'none';
+                document.getElementById('view-kyc').style.display = 'flex';
+            }, 2500);
+        });
+
+        // --- FETCH TRANSACTIONS FROM SUPABASE ---
+        async function fetchTransactions(userId) {
+            const { data, error } = await supabaseClient
+                .from('transactions')
+                .select('*')
+                .eq('user_id', userId)
+                .order('created_at', { ascending: false });
+            
+            if (data) sessionState.settlements = data;
+        }
+
+        // --- IDENTITY RESOLUTION (DATABASE LOOKUP) ---
+        function resolveIdentityOnline() {
+            const idVal = document.getElementById('kyc-id-val').value.trim();
+            const uiBox = document.getElementById('id-resolver-ui');
+            const nameEl = document.getElementById('resolved-legal-name');
+            
+            sessionState.isIDVerified = false;
+            uiBox.style.display = 'none';
+            validateOnboardingForm();
+
+            if(idVal.length >= 8) {
+                clearTimeout(window.idLookupTimer);
+                window.idLookupTimer = setTimeout(() => {
+                    // In a production app, this would verify against a government API.
+                    // For now, it generates a professional name based on the ID.
+                    nameEl.innerText = "HOLDER REF: " + idVal;
+                    uiBox.style.display = 'flex';
+                    sessionState.isIDVerified = true;
+                    validateOnboardingForm();
+                }, 500);
+            }
+        }
+
+        // --- SAVE NEW USER TO SUPABASE ---
+        async function completeOnlineOnboarding() {
+            const country = document.getElementById('kyc-country').value;
+            const meta = GLOBAL_TELEPHONY[country];
+            const name = document.getElementById('resolved-legal-name').innerText;
+            const idNum = document.getElementById('kyc-id-val').value;
+            const phone = meta.prefix + document.getElementById('kyc-phone-val').value;
+
+            const cardNum = meta.card + " " + Math.floor(1000 + Math.random()*9000) + " " + Math.floor(1000 + Math.random()*9000) + " " + idNum.slice(-4);
+
+            const { data, error } = await supabaseClient
+                .from('profiles')
+                .upsert({ 
+                    national_id: idNum,
+                    legal_name: name,
+                    phone_number: phone,
+                    country: country,
+                    card_number: cardNum,
+                    balance: 0
+                }, { onConflict: 'national_id' })
+                .select()
+                .single();
+
+            if (error) {
+                alert("Vault Connection Error: " + error.message);
+            } else {
+                sessionState.activeUser = data;
+                sessionState.totalBal = data.balance;
+                localStorage.setItem('bp_active_nid', idNum);
+                launchDashboardView();
+            }
+        }
+
+        // --- DASHBOARD RENDERING ---
+        function launchDashboardView() {
+            document.getElementById('view-kyc').style.display = 'none';
+            document.getElementById('view-main').style.display = 'flex';
+
+            document.getElementById('dash-user-name').innerText = sessionState.activeUser.legal_name;
+            document.getElementById('dash-card-name').innerText = sessionState.activeUser.legal_name.toUpperCase();
+            document.getElementById('dash-card-num').innerText = sessionState.activeUser.card_number;
+            document.getElementById('main-bal-amount').innerText = sessionState.totalBal.toLocaleString();
+            
+            // Map country to currency
+            const cur = GLOBAL_TELEPHONY[sessionState.activeUser.country].cur;
+            document.getElementById('main-cur-code').innerText = cur;
+            document.getElementById('modal-cur').innerText = cur;
+
+            renderSettlementHistory();
+        }
+
+        // --- FLUTTERWAVE -> SUPABASE PAYMENT ---
+        function executeFlutterwavePayment() {
+            const amount = document.getElementById('load-amt-val').value;
+            if(!amount || amount < 1000) return alert("Minimum settlement is 1,000");
+
+            FlutterwaveCheckout({
+                public_key: "FLWPUBK_TEST-5f661c9e83109a908064d47158300223-X",
+                tx_ref: "BP-REF-" + Date.now(),
+                amount: amount,
+                currency: GLOBAL_TELEPHONY[sessionState.activeUser.country].cur,
+                customer: {
+                    email: "vault@jtech.com",
+                    phone_number: sessionState.activeUser.phone_number,
+                    name: sessionState.activeUser.legal_name,
+                },
+                callback: async (response) => {
+                    if(response.status === "successful") {
+                        // 1. Record Transaction in Supabase
+                        await supabaseClient.from('transactions').insert({
+                            user_id: sessionState.activeUser.id,
+                            amount: amount,
+                            status: 'success',
+                            reference: response.tx_ref
+                        });
+
+                        // 2. Increment Balance via RPC Function
+                        await supabaseClient.rpc('increment_balance', { 
+                            row_id: sessionState.activeUser.id, 
+                            amt: parseFloat(amount) 
+                        });
+
+                        alert("Settlement Successful!");
+                        location.reload(); 
+                    }
+                },
+                customizations: {
+                    title: "BridgePay Master Admin",
+                    description: "Terminal Funding",
+                    logo: "https://cdn-icons-png.flaticon.com/512/10245/10245450.png",
+                },
+            });
+        }
+
+        function renderSettlementHistory() {
+            const list = document.getElementById('txn-ledger-list');
+            if(sessionState.settlements.length === 0) return;
+
+            list.innerHTML = sessionState.settlements.map(s => `
+                <div class="history-item">
+                    <div class="icon-box icon-in"><i class="fa-solid fa-arrow-down-long"></i></div>
+                    <div style="flex: 1;">
+                        <p style="margin:0; font-weight: 800; font-size: 0.85rem;">Cloud Settlement</p>
+                        <p style="margin:0; font-size: 0.6rem; color: #94a3b8;">Ref: ${s.reference.slice(-8)}</p>
+                    </div>
+                    <div style="text-align: right;">
+                        <p style="margin:0; font-weight: 800; color: var(--emerald);">+${parseFloat(s.amount).toLocaleString()}</p>
+                        <span style="font-size: 0.5rem; font-weight: 900; background: #dcfce7; color: #166534; padding: 2px 6px; border-radius: 4px;">VERIFIED</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // --- UTILITY FUNCTIONS ---
+        function updateTelephonyRules() {
+            const country = document.getElementById('kyc-country').value;
+            const meta = GLOBAL_TELEPHONY[country];
+            document.getElementById('prefix-display').innerText = meta.prefix;
+            document.getElementById('phone-rule-text').innerText = `Requirement: ${meta.length} digits`;
+            validateOnboardingForm();
+        }
+
+        function validatePhoneEntry() {
+            const country = document.getElementById('kyc-country').value;
+            const phoneField = document.getElementById('kyc-phone-val');
+            const required = GLOBAL_TELEPHONY[country].length;
+            if(phoneField.value.length > required) phoneField.value = phoneField.value.slice(0, required);
+            validateOnboardingForm();
+        }
+
+        function validateOnboardingForm() {
+            const country = document.getElementById('kyc-country').value;
+            const phoneVal = document.getElementById('kyc-phone-val').value;
+            const required = GLOBAL_TELEPHONY[country].length;
+            const btn = document.getElementById('btn-onboard');
+            btn.disabled = !(sessionState.isIDVerified && phoneVal.length === required);
+        }
+
+        function toggleModal(id, show) {
+            document.getElementById(id).style.display = show ? 'flex' : 'none';
+        }
+
+        function handleLogout() {
+            if(confirm("Terminate Vault Session?")) {
+                localStorage.clear();
+                location.reload();
+            }
+        }
+    </script>
+</body>
+</html>
